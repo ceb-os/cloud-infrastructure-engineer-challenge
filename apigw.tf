@@ -29,14 +29,31 @@ resource "aws_api_gateway_integration" "lambda_integration" {
   http_method             = aws_api_gateway_method.info_get_method.http_method
   passthrough_behavior    = "WHEN_NO_MATCH"
   
-  # Type AWS_PROXY is the standard for Lambda integration
-  type                    = "NONE"
+  # valor default cuando creas desde la ui
+  type                    = "AWS"
   
   # por algun motivo es POST inclusive para GET
   integration_http_method = "POST" 
   
-  # Use the Lambda's ARN to define the target
+  # arn de lambda para el target
   uri                     = aws_lambda_function.lambda.invoke_arn 
+}
+
+resource "aws_api_gateway_method_response" "response_200" {
+  rest_api_id = aws_api_gateway_rest_api.apigw.id
+  resource_id = aws_api_gateway_resource.info_resource.id
+  http_method = aws_api_gateway_method.info_get_method.http_method
+  status_code = "200"
+
+  # sino no se crea
+  depends_on = [ aws_api_gateway_integration.lambda_integration, aws_api_gateway_method.info_get_method ]
+}
+
+resource "aws_api_gateway_integration_response" "integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.apigw.id
+  resource_id = aws_api_gateway_resource.info_resource.id
+  http_method = aws_api_gateway_method.info_get_method.http_method
+  status_code = aws_api_gateway_method_response.response_200.status_code
 }
 
 resource "aws_lambda_permission" "api_gateway_lambda_permission" {
@@ -52,25 +69,30 @@ resource "aws_lambda_permission" "api_gateway_lambda_permission" {
 resource "aws_api_gateway_deployment" "apigw_deployment" {
   rest_api_id = aws_api_gateway_rest_api.apigw.id
   
-  # Triggers ensure a *new* deployment is created when *any* related config changes
+  # se re-despliega si hay modificaciones
   triggers = {
     redeployment = sha1(jsonencode([
       aws_api_gateway_resource.info_resource.id,
       aws_api_gateway_method.info_get_method.id,
       aws_api_gateway_integration.lambda_integration.id,
+      aws_api_gateway_method_response.response_200.id,
+      aws_api_gateway_integration_response.integration_response.id
     ]))
   }
-  
-  # Best practice to avoid downtime during replacement
-  lifecycle {
+
+    lifecycle {
     create_before_destroy = true
   }
+
+
 }
 
 resource "aws_api_gateway_stage" "stage" {
   deployment_id = aws_api_gateway_deployment.apigw_deployment.id
   rest_api_id   = aws_api_gateway_rest_api.apigw.id
   stage_name    = "v1"
+
+  depends_on = [ aws_api_gateway_method_response.response_200 ]
 }
 
 # Corrected Output Block
