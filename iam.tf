@@ -7,20 +7,9 @@ data "aws_iam_policy_document" "lambda_rds_connect_policy" {
 
     statement {
         effect    = "Allow"
-        actions   = ["rds-db:*"]
+        actions   = ["rds-db:connect"]
         resources = ["arn:aws:rds-db:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:dbuser:*/*"]
     }
-#   policy = jsonencode({
-#     "Version" : "2012-10-17",
-#     "Statement" : [
-#       {
-#         "Sid" : "RdsDbConnect",
-#         "Effect" : "Allow",
-#         "Action" : "rds-db:*", 
-#         "Resource" : "arn:aws:rds-db:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:dbuser:*/*"
-#       }
-#     ]
-#   })
 }
 
 resource "aws_iam_policy" "rds-db-connect-policy" {
