@@ -1,6 +1,6 @@
 # se crea la api
 resource "aws_api_gateway_rest_api" "apigw" {
-  name = "nanlabs-apigw-rest-api"
+  name        = "nanlabs-apigw-rest-api"
   description = "API GW that will trigger the nanlabs-lambda-function"
   endpoint_configuration {
     types = ["REGIONAL"]
@@ -11,7 +11,7 @@ resource "aws_api_gateway_rest_api" "apigw" {
 resource "aws_api_gateway_resource" "info_resource" {
   rest_api_id = aws_api_gateway_rest_api.apigw.id
   parent_id   = aws_api_gateway_rest_api.apigw.root_resource_id
-  path_part   = "info" 
+  path_part   = "info"
 }
 
 # se crea el GET method
@@ -19,24 +19,24 @@ resource "aws_api_gateway_method" "info_get_method" {
   rest_api_id   = aws_api_gateway_rest_api.apigw.id
   resource_id   = aws_api_gateway_resource.info_resource.id
   http_method   = "GET"
-  authorization = "NONE" 
+  authorization = "NONE"
 }
 
 
 resource "aws_api_gateway_integration" "lambda_integration" {
-  rest_api_id             = aws_api_gateway_rest_api.apigw.id
-  resource_id             = aws_api_gateway_resource.info_resource.id
-  http_method             = aws_api_gateway_method.info_get_method.http_method
-  passthrough_behavior    = "WHEN_NO_MATCH"
-  
+  rest_api_id          = aws_api_gateway_rest_api.apigw.id
+  resource_id          = aws_api_gateway_resource.info_resource.id
+  http_method          = aws_api_gateway_method.info_get_method.http_method
+  passthrough_behavior = "WHEN_NO_MATCH"
+
   # valor default cuando creas desde la ui
-  type                    = "AWS"
-  
+  type = "AWS"
+
   # por algun motivo es POST inclusive para GET
-  integration_http_method = "POST" 
-  
+  integration_http_method = "POST"
+
   # arn de lambda para el target
-  uri                     = aws_lambda_function.lambda.invoke_arn 
+  uri = aws_lambda_function.lambda.invoke_arn
 }
 
 resource "aws_api_gateway_method_response" "response_200" {
@@ -46,7 +46,7 @@ resource "aws_api_gateway_method_response" "response_200" {
   status_code = "200"
 
   # sino no se crea
-  depends_on = [ aws_api_gateway_integration.lambda_integration, aws_api_gateway_method.info_get_method ]
+  depends_on = [aws_api_gateway_integration.lambda_integration, aws_api_gateway_method.info_get_method]
 }
 
 resource "aws_api_gateway_integration_response" "integration_response" {
@@ -68,7 +68,7 @@ resource "aws_lambda_permission" "api_gateway_lambda_permission" {
 
 resource "aws_api_gateway_deployment" "apigw_deployment" {
   rest_api_id = aws_api_gateway_rest_api.apigw.id
-  
+
   # se re-despliega si hay modificaciones
   triggers = {
     redeployment = sha1(jsonencode([
@@ -80,7 +80,7 @@ resource "aws_api_gateway_deployment" "apigw_deployment" {
     ]))
   }
 
-    lifecycle {
+  lifecycle {
     create_before_destroy = true
   }
 
@@ -92,11 +92,11 @@ resource "aws_api_gateway_stage" "stage" {
   rest_api_id   = aws_api_gateway_rest_api.apigw.id
   stage_name    = "v1"
 
-  depends_on = [ aws_api_gateway_method_response.response_200 ]
+  depends_on = [aws_api_gateway_method_response.response_200]
 }
 
 # Corrected Output Block
 output "invoke_url" {
-  value = "${aws_api_gateway_stage.stage.invoke_url}${aws_api_gateway_resource.info_resource.path}"
+  value       = "${aws_api_gateway_stage.stage.invoke_url}${aws_api_gateway_resource.info_resource.path}"
   description = "The callable URL for the /info GET endpoint."
 }

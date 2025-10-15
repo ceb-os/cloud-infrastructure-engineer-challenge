@@ -1,15 +1,28 @@
+# repos:
+#   # tflint for linting
+#   - repo: https://github.com/terraform-linters/tflint
+#     rev: v0.59.1 
+#     hooks:
+#       - id: tflint  
+#         args:
+#         - "--module"
+#         - "--deep"
+#         - "--config=.tflint.hcl"
+#       - id: terraform-validate
+#       - id: terraform-fmt
+
+#   - repo: git://github.com/antonbabenko/pre-commit-terraform
+#     rev: v1.102.0
+#     hooks:
+#       - id: terraform_tfsec
+
 repos:
-  # tfsec for security checks
-  - repo: https://github.com/tfsec/tfsec-pre-commit
-    rev: v1.28.1 
-    hooks:
-      - id: tfsec
-
-
-  # tflint for linting
-  - repo: https://github.com/terraform-linters/tflint-pre-commit
-    rev: v0.51.0 
-    hooks:
-      - id: tflint
-
-###
+- repo: https://github.com/antonbabenko/pre-commit-terraform
+  rev: v1.102.0
+  hooks:
+    - id: terraform_tflint
+      verbose: true
+      args:
+      - --args=--config=__GIT_WORKING_DIR__/.tflint.hcl
+    - id: terraform_trivy
+      verbose: true

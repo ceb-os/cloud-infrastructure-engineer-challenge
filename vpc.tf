@@ -41,7 +41,7 @@ resource "aws_subnet" "public" {
 
 # tengo que crear una eip para el nat porque vive en la subnet pública 
 resource "aws_eip" "nat_eip" {
-  domain = "vpc" 
+  domain = "vpc"
 
   tags = {
     Name = "nanlabs-nat-eip"
@@ -56,7 +56,7 @@ resource "aws_nat_gateway" "nat_gw" {
   allocation_id = aws_eip.nat_eip.id
   subnet_id     = aws_subnet.public.id
   # necesito el igw primero para tener mi subnet pública
-  depends_on    = [aws_internet_gateway.igw] 
+  depends_on = [aws_internet_gateway.igw]
 
   tags = {
     Name = "nanlabs-nat-gateway"
@@ -105,40 +105,40 @@ resource "aws_route_table_association" "private" {
 
 #alta de sgs + reglas 
 resource "aws_security_group" "lambda-sg" {
-  name = "nanlabs-lambda-sg"
+  name        = "nanlabs-lambda-sg"
   description = "Allow outbound traffic from the Lambda function to the rest of the VPC"
-  vpc_id = aws_vpc.nanlabs-vpc.id
+  vpc_id      = aws_vpc.nanlabs-vpc.id
 }
 
 resource "aws_vpc_security_group_egress_rule" "allow_outbound_vpc" {
   security_group_id = aws_security_group.lambda-sg.id
   cidr_ipv4         = "10.0.0.0/16"
   ip_protocol       = "tcp"
-  from_port = 5432
-  to_port = 5432
+  from_port         = 5432
+  to_port           = 5432
 }
 
 resource "aws_security_group" "rds-sg" {
-  name = "nanlabs-rds-sg"
+  name        = "nanlabs-rds-sg"
   description = "Allow inbound traffic from the Lambda function to the RDS"
-  vpc_id = aws_vpc.nanlabs-vpc.id
-  depends_on = [aws_security_group.lambda-sg]
+  vpc_id      = aws_vpc.nanlabs-vpc.id
+  depends_on  = [aws_security_group.lambda-sg]
 }
 
 resource "aws_vpc_security_group_ingress_rule" "allow_inbound_lambda" {
-  security_group_id = aws_security_group.rds-sg.id
+  security_group_id            = aws_security_group.rds-sg.id
   referenced_security_group_id = aws_security_group.lambda-sg.id
-  ip_protocol       = "tcp"
-  from_port = 5432
-  to_port = 5432
+  ip_protocol                  = "tcp"
+  from_port                    = 5432
+  to_port                      = 5432
 }
 
 # creo que necesito esto, sino no puedo automatizar el alta del role en la db de la rds
 # idealmente se ejecutaria desde una ec2 dentro de la misma vpc y no tendria que usar mi ip publica
 resource "aws_vpc_security_group_ingress_rule" "allow_inbound_pc" {
   security_group_id = aws_security_group.rds-sg.id
-  cidr_ipv4 = "181.117.161.114/32"
+  cidr_ipv4         = "181.117.161.114/32"
   ip_protocol       = "tcp"
-  from_port = 5432
-  to_port = 5432
+  from_port         = 5432
+  to_port           = 5432
 }

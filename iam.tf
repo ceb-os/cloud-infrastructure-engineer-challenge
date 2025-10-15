@@ -5,11 +5,11 @@ resource "aws_iam_role" "lambda_rds_role" {
 
 data "aws_iam_policy_document" "lambda_rds_connect_policy" {
 
-    statement {
-        effect    = "Allow"
-        actions   = ["rds-db:connect"]
-        resources = ["arn:aws:rds-db:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:dbuser:*/*"]
-    }
+  statement {
+    effect    = "Allow"
+    actions   = ["rds-db:connect"]
+    resources = ["arn:aws:rds-db:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:dbuser:*/*"]
+  }
 }
 
 resource "aws_iam_policy" "rds-db-connect-policy" {
