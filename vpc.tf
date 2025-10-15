@@ -46,6 +46,10 @@ resource "aws_eip" "nat_eip" {
   tags = {
     Name = "nanlabs-nat-eip"
   }
+
+  lifecycle {
+    prevent_destroy = false
+  }
 }
 
 resource "aws_nat_gateway" "nat_gw" {
@@ -99,6 +103,7 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private.id
 }
 
+#alta de sgs + reglas 
 resource "aws_security_group" "lambda-sg" {
   name = "nanlabs-lambda-sg"
   description = "Allow outbound traffic from the Lambda function to the rest of the VPC"
@@ -129,6 +134,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_inbound_lambda" {
 }
 
 # creo que necesito esto, sino no puedo automatizar el alta del role en la db de la rds
+# idealmente se ejecutaria desde una ec2 dentro de la misma vpc y no tendria que usar mi ip publica
 resource "aws_vpc_security_group_ingress_rule" "allow_inbound_pc" {
   security_group_id = aws_security_group.rds-sg.id
   cidr_ipv4 = "181.117.161.114/32"
