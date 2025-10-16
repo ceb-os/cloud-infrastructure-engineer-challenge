@@ -3,6 +3,6 @@ variable "region" {
   default = "us-east-1"
 }
 
-variable "sns-email" {
-  type = string
-}
+variable "sns-email" {}
+
+variable "my-public-ip" {}

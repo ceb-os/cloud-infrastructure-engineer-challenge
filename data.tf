@@ -13,10 +13,19 @@ data "aws_iam_policy_document" "lambda_assume_role" {
   }
 }
 
+data "aws_iam_policy_document" "lambda_rds_connect_policy" {
+  statement {
+    effect    = "Allow"
+    actions   = ["rds-db:connect"]
+    resources = ["arn:aws:rds-db:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:dbuser:*/*"]
+  }
+}
+
 # para la customer managed policy
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 
+# zippeo el codigo de mi lambda para subirlo durante la creación
 data "archive_file" "lambda_zip" {
   type        = "zip"
   source_dir  = "./function_code/"

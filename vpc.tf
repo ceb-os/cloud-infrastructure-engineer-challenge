@@ -91,7 +91,7 @@ resource "aws_route_table" "private" {
   }
 }
 
-## enrua trafica a traves del igw
+## enruta trafica a traves del igw
 resource "aws_route_table_association" "public" {
   subnet_id      = aws_subnet.public.id
   route_table_id = aws_route_table.public.id
@@ -106,7 +106,7 @@ resource "aws_route_table_association" "private" {
 #alta de sgs + reglas 
 resource "aws_security_group" "lambda-sg" {
   name        = "nanlabs-lambda-sg"
-  description = "Allow outbound traffic from the Lambda function to the rest of the VPC"
+  description = "SG that allows connection from Lambda to the rest of the VPC"
   vpc_id      = aws_vpc.nanlabs-vpc.id
 }
 
@@ -116,11 +116,12 @@ resource "aws_vpc_security_group_egress_rule" "allow_outbound_vpc" {
   ip_protocol       = "tcp"
   from_port         = 5432
   to_port           = 5432
+  description = "Allow outbound traffic from the Lambda function to the rest of the VPC"
 }
 
 resource "aws_security_group" "rds-sg" {
   name        = "nanlabs-rds-sg"
-  description = "Allow inbound traffic from the Lambda function to the RDS"
+  description = "SG that allows connection from Lambda to RDS"
   vpc_id      = aws_vpc.nanlabs-vpc.id
   depends_on  = [aws_security_group.lambda-sg]
 }
@@ -131,13 +132,14 @@ resource "aws_vpc_security_group_ingress_rule" "allow_inbound_lambda" {
   ip_protocol                  = "tcp"
   from_port                    = 5432
   to_port                      = 5432
+  description = "Allow inbound traffic from the Lambda function to the RDS"
 }
 
 # creo que necesito esto, sino no puedo automatizar el alta del role en la db de la rds
 # idealmente se ejecutaria desde una ec2 dentro de la misma vpc y no tendria que usar mi ip publica
 resource "aws_vpc_security_group_ingress_rule" "allow_inbound_pc" {
   security_group_id = aws_security_group.rds-sg.id
-  cidr_ipv4         = "181.117.161.114/32"
+  cidr_ipv4         = var.my-public-ip
   ip_protocol       = "tcp"
   from_port         = 5432
   to_port           = 5432

@@ -29,6 +29,7 @@ provider "postgresql" {
 
 
 # para hacer terraform destroy tengo que sacar estos dos bloques del terraform state
+# si estuviera haciendo destroy desde un pipeline o un terraform apply que borre, se podria hacer esto antes de borrar la infra
 # terraform state rm postgresql_role.nanlabs_user
 # terraform state rm postgresql_grant_role.grant_rds_iam
 
