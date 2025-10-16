@@ -16,6 +16,7 @@ CMD [ "lambda_function_local_testing.lambda_handler" ]
 # comando para testear lambda
 # es POST y no GET porque para triggerear una funcion el RIE (runtime interface emulator de lambda) necesita que yo mande un POST 
 # curl manda POST pero en el payload mandamos GET que es nuestra verdadera intención
+# no necesita el path en realidad porque en ningun lado le digo a la lambda que vaya a buscar ese evento especifico
 # curl -XPOST 'http://localhost:9000/2015-03-31/functions/function/invocations' \
 #      -H 'Content-Type: application/json' \
 #      -d '{"httpMethod": "GET", "path": "/info", "queryStringParameters": null, "body": null}'
