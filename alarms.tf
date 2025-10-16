@@ -9,9 +9,8 @@ resource "aws_cloudwatch_metric_alarm" "rds_cpu_usage_high" {
   statistic                 = "Average"
   threshold                 = 90
   alarm_description         = "Trigger alarm if CPU usage is above 90%."
-# tengo que levantar un sns topic
-#   alarm_actions             = [aws_sns_topic.rds_alarms_topic.arn]
-#   ok_actions                = [aws_sns_topic.rds_alarms_topic.arn]
+  alarm_actions             = [aws_sns_topic.rds_alarms_topic.arn]
+  ok_actions                = [aws_sns_topic.rds_alarms_topic.arn]
 
   dimensions = {
     DBInstanceIdentifier = aws_db_instance.nanlabs-rds.identifier
@@ -20,7 +19,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_cpu_usage_high" {
 
 # alarma para memoria
 resource "aws_cloudwatch_metric_alarm" "rds_memory_low" {
-  alarm_name                = "RDS-Low-Freeable-Memory"
+  alarm_name                = "rds_low_freeable_memory"
   comparison_operator       = "LessThanThreshold"
   evaluation_periods        = 3
   metric_name               = "FreeableMemory"
@@ -33,9 +32,8 @@ resource "aws_cloudwatch_metric_alarm" "rds_memory_low" {
   
   alarm_description         = "Trigger alarm if RDS freeable memory drops below 100 MB."
   actions_enabled           = true
-# tengo que levantar un sns topic
-#   alarm_actions             = [aws_sns_topic.rds_alarms_topic.arn]
-#   ok_actions                = [aws_sns_topic.rds_alarms_topic.arn]
+  alarm_actions             = [aws_sns_topic.rds_alarms_topic.arn]
+  ok_actions                = [aws_sns_topic.rds_alarms_topic.arn]
 
   dimensions = {
     DBInstanceIdentifier = aws_db_instance.nanlabs-rds.identifier
@@ -44,7 +42,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_memory_low" {
 
 # alarma para storage
 resource "aws_cloudwatch_metric_alarm" "rds_storage_low" {
-  alarm_name                = "RDS-Low-FreeStorageSpace"
+  alarm_name                = "rds_low_storage"
   comparison_operator       = "LessThanThreshold"
   evaluation_periods        = 1
   metric_name               = "FreeStorageSpace"
@@ -57,9 +55,8 @@ resource "aws_cloudwatch_metric_alarm" "rds_storage_low" {
   
   alarm_description         = "Trigger alarm if RDS free storage space drops below 1 GB."
   actions_enabled           = true
-# tengo que levantar un snsp topci
-#   alarm_actions             = [aws_sns_topic.rds_alarms_topic.arn]
-#   ok_actions                = [aws_sns_topic.rds_alarms_topic.arn]
+  alarm_actions             = [aws_sns_topic.rds_alarms_topic.arn]
+  ok_actions                = [aws_sns_topic.rds_alarms_topic.arn]
 
   dimensions = {
     DBInstanceIdentifier = aws_db_instance.nanlabs-rds.identifier
