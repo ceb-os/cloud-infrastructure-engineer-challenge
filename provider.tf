@@ -27,11 +27,12 @@ provider "postgresql" {
   sslmode  = "require"
 }
 
-# tuve que agregar esto porque en cada apply queria sacar el rol, no se por que
+
 # para hacer terraform destroy tengo que sacar estos dos bloques del terraform state
 # terraform state rm postgresql_role.nanlabs_user
 # terraform state rm postgresql_grant_role.grant_rds_iam
 
+# tuve que agregar esto porque en cada apply queria sacar el rol, no se por que
 resource "postgresql_role" "nanlabs_user" {
   name  = "nanlabs_user"
   login = true
