@@ -5,5 +5,5 @@ resource "aws_sns_topic" "rds_alarms_topic" {
 resource "aws_sns_topic_subscription" "email_subscription" {
     topic_arn = aws_sns_topic.rds_alarms_topic.arn
     protocol = "email"
-    endpoint = "sebasucari@gmail.com"
+    endpoint = var.sns-email
 }
