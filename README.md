@@ -1,7 +1,7 @@
 # 🚀 Cloud Infrastructure Engineer Challenge
 
 ## Description
-This repository contains the infrastructure and application code required to deploy an API Gateway Endpoint that triggers an AWS Lambda function. The Lambda connects to an Amazon RDS (PostgreSQL) instance within a Virtual Private Cloud (VPC) to perform a simple database status check + database information and returns the result via Amazon API Gateway.
+This repository contains the infrastructure and application code required to deploy an API Gateway Endpoint that triggers an AWS Lambda function. The Lambda connects to an Amazon RDS (PostgreSQL) instance within a Virtual Private Cloud (VPC) to perform a simple database status check + database information gathering and then returns the result via Amazon API Gateway.
 This project uses Docker Compose to create a local development environment.
 
 ## Architecture Overview
@@ -48,7 +48,7 @@ You should now see a JSON object containing the database version.
 ## AWS Deployment
 First, make sure your AWS credentials are configured and accessible by Terraform
 
-Then check the following variables in the terraform.tfvars file and assign them values, since they will be needed to perform a succesful deployment:
+Then check the following variables in the terraform.tfvars file and assign values to them, since they will be needed to perform a succesful deployment:
 ```
 sns-email = ""
 my-public-ip = ""
