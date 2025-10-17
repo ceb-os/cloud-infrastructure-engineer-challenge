@@ -3,8 +3,7 @@ import os
 import psycopg2
 from datetime import datetime
 
-# --- Configuration (Environment Variables) ---
-# Ensure these environment variables are set in your Lambda configuration
+#
 DB_HOST = os.environ['DB_HOST'] # RDS Endpoint
 DB_USER = os.environ['DB_USER'] # The DB user enabled for IAM Auth
 DB_NAME = os.environ['DB_NAME']
