@@ -19,6 +19,7 @@ To deploy the solution, the following packages must be installed:
 
 ## Decisions
 During the challenge there were many decisions that I had to take and I'd like to detail my train of thought in this block.
+
 First of all, since I was using an AWS Free Tier account, I thought it was best to first deploy everything using the UI and making sure the solution worked fine, so I started with the VPC components.
 ### VPC
 I started with the creation of the VPC and the subnets. One would be my private subnet and the other one the public subnet.
