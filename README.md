@@ -43,7 +43,7 @@ curl -XPOST 'http://localhost:9000/2015-03-31/functions/function/invocations' \
 ```
 Note: This uses a POST request to the Lambda Runtime Interface Emulator (RIE), and the JSON payload simulates the actual API Gateway request.
 
-**Expected Output**: A JSON object containing the database version.
+You should now see a JSON object containing the database version.
 
 ## AWS Deployment
 First, ensure your AWS credentials are configured and accessible by Terraform
@@ -72,7 +72,7 @@ terraform apply
 ### 4 Testing
 After deployment, copy the URL of the API Gateway given by the output and paste it into your browser.
 
-**Expected Output**: A JSON object detailing information about the RDS.
+You should now see a JSON object detailing information about the RDS.
 
 Once you've tested the function, you can test the alarms by executing the .sql scripts in the "alarm testing" directory. First you'll need to run:
 ```
