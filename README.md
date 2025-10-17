@@ -10,7 +10,7 @@ This was all done on an AWS Free Tier Subscription account.
 2. The **Security Groups** for connection between resources.
 3. An **RDS** database instance.
 4. The necessary **IAM roles** and **policies** for the Lambda function.
-5. A **Lambda** function.
+5. A **Lambda** function that generates **CloudWatch** logs via the **AWSLambdaBasicExecutionRole IAM Policy**.
 6. An **API Gateway** that triggers the **Lambda** function.
 
 ## Prerequisites
