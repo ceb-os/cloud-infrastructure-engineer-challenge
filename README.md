@@ -27,6 +27,13 @@ This was a great learning point for me since I'd never had to deploy a VPC confi
 ### Backend
 It was time to create the backend. The first thing that came to mind was RDS. I felt that it was a much simpler approach for the specific requirement since it didn’t need as much configuration as an EC2 with an installed database or a deployed application (which would make the task much more complex since the database/application installation and configuration should be automated). The type of instance that I felt would be best was an Aurora Serverless, since it checks the auto-scaling requirement. Sadly, due to my account being Free Tier I couldn't deploy one. Also the deployment wasn't MultiAZ since it isn't supported by Free Tier (for the record, if I would have been able to, I would have created a MultiAZ deployment with a Subnet Group that used 2 Private Subnets and an Aurora Serverless RDS). For a brief moment I also explored the possibility of an EC2 with an ASG and an AWS AMI that came with the database installed but it was discarded since it felt like too much of a hassle compared to the RDS solution, which is also something that I am much more familiarized with since I’ve done this type of integrations with Lambda before. What I had never done before was authenticating to an RDS database using IAM. I decided to authenticate this way since I felt it was way cleaner than using credentials, since I would have to also manage the credentials with Secret Manager or Parameter Store. After reviewing the code, you'll probably notice that the RDS is publicly accessible. I know this isn't clean but it was the way I managed to set up the postgres provider to automate the creation of the role and then grant permissions to the role inside the database since terraform is creating a connection from my host to the RDS. A way to fix this would be having an EC2 in the same VPC with all the dependencies installed do the whole deployment.
 
+## Tool Selection Justification
+The tools used during the challenge were:
+1. **An AWS Free Tier account**: I decided to use an AWS Free Tier account instead of LocalStack mainly because it is what I felt the most comfortable with. I've been working with AWS for a while now and I knew that trying anything new was a recipe for disaster, so I tried to keep it simple by using what I know the most. Using AWS allowed me to plan every step carefully and making mistakes and correcting them was much easier due to the UI.
+2. **Terraform**: Same as AWS, I went with Terraform because I know it the most. I've used CDK in the past but I'm not as comfortable as I am with Terraform. Maybe it is because I have been using it for a while but I feel like the code is much more easy to understand visually.
+3. **Docker and Docker-compose**: I didn't have much experience using Docker and Docker compose aside from a few personal projects that I did in the past so I decided to go with these tools to try and hone my knowledge. I found it super pleasurable since I managed to deploy everything with almost no problems, it felt like after a few years of  working with AWS all the Docker concepts that used to feel hard to understand came very naturally.
+4. **Python**: In the past year I had to deploy a few Lambda functions and I wrote the scripts with Python and boto3. I felt like these were the right tools to create the Lambda needed for the solution.
+
 ## Local Development & Testing
 Before deploying to AWS, you can test the Lambda and Database integration locally using Docker Compose.
 ### 1. Build and Run Services
@@ -84,13 +91,6 @@ Then open 5 to 7 sessions on the database and execute the next script:
 high_cpu_load.sql
 ```
 After a while you should get all 3 emails, one for each alert.
-
-## Tool Selection Justification
-The tools used during the challenge were:
-1. **An AWS Free Tier account**: I decided to use an AWS Free Tier account instead of LocalStack mainly because it is what I felt the most comfortable with. I've been working with AWS for a while now and I knew that trying anything new was a recipe for disaster, so I tried to keep it simple by using what I know the most. Using AWS allowed me to plan every step carefully and making mistakes and correcting them was much easier due to the UI.
-2. **Terraform**: Same as AWS, I went with Terraform because I know it the most. I've used CDK in the past but I'm not as comfortable as I am with Terraform. Maybe it is because I have been using it for a while but I feel like the code is much more easy to understand visually.
-3. **Docker and Docker-compose**: I didn't have much experience using Docker and Docker compose aside from a few personal projects that I did in the past so I decided to go with these tools to try and hone my knowledge. I found it super pleasurable since I managed to deploy everything with almost no problems, it felt like after a few years of  working with AWS all the Docker concepts that used to feel hard to understand came very naturally.
-4. **Python**: In the past year I had to deploy a few Lambda functions and I wrote the scripts with Python and boto3. I felt like these were the right tools to create the Lambda needed for the solution.
 
 ## Takeaways
 It was a great and very informative experience. I got the chance to do a lot of new things that either weren't necessary in my current and previous jobs or that were already solved (such as all the VPC configs).
