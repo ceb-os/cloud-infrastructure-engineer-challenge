@@ -62,7 +62,7 @@ resource "aws_lambda_permission" "api_gateway_lambda_permission" {
   function_name = aws_lambda_function.lambda.function_name
   principal     = "apigateway.amazonaws.com"
 
-  # Source ARN restricts which API Gateway can invoke the function
+  # se especifica el arn del apigw que puede invocar a la lambda
   source_arn = "${aws_api_gateway_rest_api.apigw.execution_arn}/*/${aws_api_gateway_method.info_get_method.http_method}${aws_api_gateway_resource.info_resource.path}"
 }
 
@@ -95,7 +95,7 @@ resource "aws_api_gateway_stage" "stage" {
   depends_on = [aws_api_gateway_method_response.response_200]
 }
 
-# Corrected Output Block
+# output para invocar lambda
 output "invoke_url" {
   value       = "${aws_api_gateway_stage.stage.invoke_url}${aws_api_gateway_resource.info_resource.path}"
   description = "The callable URL for the /info GET endpoint."
