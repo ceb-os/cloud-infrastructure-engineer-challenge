@@ -18,7 +18,9 @@ services:
     restart: unless-stopped
 
   local-lambda:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: local-info-lambda
     restart: on-failure
     # alta de base de datos antes de alta de lambda

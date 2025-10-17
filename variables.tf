@@ -6,3 +6,5 @@ variable "region" {
 variable "sns-email" {}
 
 variable "my-public-ip" {}
+
+variable "environment" {}
