@@ -1,11 +1,12 @@
 # alarma para CPU
+# evaluation periods breves para probar la alarma
 resource "aws_cloudwatch_metric_alarm" "rds_cpu_usage_high" {
   alarm_name                = "rds_cpu_alarm"
   comparison_operator       = "GreaterThanThreshold"
-  evaluation_periods        = 3
+  evaluation_periods        = 1
   metric_name               = "CPUUtilization"
   namespace                 = "AWS/RDS"
-  period                    = 120
+  period                    = 60
   statistic                 = "Average"
   threshold                 = 90
   alarm_description         = "Trigger alarm if CPU usage is above 90%."
@@ -18,13 +19,14 @@ resource "aws_cloudwatch_metric_alarm" "rds_cpu_usage_high" {
 }
 
 # alarma para memoria
+# evaluation periods breves para probar la alarma
 resource "aws_cloudwatch_metric_alarm" "rds_memory_low" {
   alarm_name                = "rds_low_freeable_memory"
   comparison_operator       = "LessThanThreshold"
-  evaluation_periods        = 3
+  evaluation_periods        = 1
   metric_name               = "FreeableMemory"
   namespace                 = "AWS/RDS"
-  period                    = 120
+  period                    = 60
   statistic                 = "Average"
   
   # umbral en bytes 100mb
@@ -41,13 +43,14 @@ resource "aws_cloudwatch_metric_alarm" "rds_memory_low" {
 }
 
 # alarma para storage
+# evaluation periods breves para probar la alarma
 resource "aws_cloudwatch_metric_alarm" "rds_storage_low" {
   alarm_name                = "rds_low_storage"
   comparison_operator       = "LessThanThreshold"
   evaluation_periods        = 1
   metric_name               = "FreeStorageSpace"
   namespace                 = "AWS/RDS"
-  period                    = 300
+  period                    = 60
   statistic                 = "Average"
   
   # umbral en bytes, 1gb
