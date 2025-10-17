@@ -1,88 +1,97 @@
 # 🚀 Cloud Infrastructure Engineer Challenge
 
-Welcome to the **Cloud Infrastructure Engineer Challenge!** 🎉 This challenge is designed to evaluate your ability to work with **Infrastructure as Code (IaC)**, AWS networking, IAM, and automation using modern DevOps practices.
+## Description
+This repository contains the infrastructure and application code required to deploy an API Gateway Endpoint that triggers an AWS Lambda function. The Lambda connects to an Amazon RDS (PostgreSQL) instance within a Virtual Private Cloud (VPC) to perform a simple database status check + database information and returns the result via Amazon API Gateway.
+This project uses Docker Compose to create a local development environment.
 
-> [!NOTE]
-> You can use **any IaC tool of your choice** (Terraform preferred, but alternatives are allowed). If you choose a different tool or a combination of tools, **justify your decision!**
+## Architecture Overview
+This was all done on an AWS Free Tier Subscription account.
+1. A **VPC** that contains two subnets, a **private** and a **public** one.
+2. The **Security Groups** for connection between resources.
+3. An **RDS** database instance.
+4. The necessary **IAM roles** and **policies** for the Lambda function.
+5. A **Lambda** function.
+6. An **API Gateway** that triggers the **Lambda** function.
 
-## ⚡ Challenge Overview
+## Prerequisites
+To deploy the solution, the following packages must be installed:
+**Python3.x**, **pip**, **node.js**, **git**, **pre-commit**, **tflint**, **tfsec (trivy)**, **terraform** and **Docker**.
 
-Your task is to deploy the following infrastructure on AWS:
+## Decisions
+During the challenge there were many decisions that I had to take and I'd like to detail my train of thought in this block.
+First of all, since I was using an AWS Free Tier account, I thought it was best to first deploy everything using the UI and making sure the solution worked fine, so I started with the VPC components.
+### VPC
+I started with the creation of the VPC and the subnets. One would be my private subnet and the other one the public subnet.
+This was a great learning point for me since I'd never had to deploy a VPC config from scratch. All the places I've worked at had already solved that issue so even though I understood the theory of it, I never had the chance to do it.
+### Backend
+It was time to create the backend. The first thing that came to mind was RDS. I felt that it was a much simpler approach for the specific requirement since it didn’t need as much configuration as an EC2 with an installed database or a deployed application (which would make the task much more complex since the database/application installation and configuration should be automated). The type of instance that I felt would be best was an Aurora Serverless, since it checks the auto-scaling requirement. Sadly, to due my account being Free Tier I couldn't deploy one but I do understand how to do so. Also the deployment wasn't MultiAZ since it isn't supported by Free Tier (for the record, if I would have been able to, I would have created a MultiAZ deployment with a Subnet Group that used 2 Private Subnets and an Aurora Serverless RDS). For a brief moment I also explored the possibility of an EC2 with an ASG and an AWS AMI that came with the database installed but it was discarded since it felt like too much of a hassle compared to the RDS solution, which is also something that I am much more familiarized with since I’ve done this type of integrations with Lambda before. What I had never done before was authenticating to an RDS database using IAM. I decided to authenticate this way since I felt it was way cleaner than using credentials, since I would have to also manage the credentials with Secret Manager or Parameter Store. After reviewing the code, you'll probably notice that the RDS is publicly accesible. I know this isn't clean but it was the way I managed to set up the postgres provider to automate the creation of the role and then grant permissions to the role inside the database, since terraform is creating a connection from my host to the RDS. A way to fix this would be having an EC2 in the same VPC with all the dependencies installed do the whole deployment.
 
-> 🎯 **Key Objectives:**
+## Local Development & Testing
+Before deploying to AWS, you can test the Lambda and Database integration locally using Docker Compose.
+### 1. Build and Run Services
+First make sure that Docker is running.
+From the project root directory, access the docker folder and run the following command to build the Lambda image, start the Lambda container, and start the PostgreSQL container in the background:
+```
+docker-compose up --build -d
+```
+### 2. Test the Local Endpoint
+Once the containers are running, send a simulated API Gateway request to your Lambda service running on port 9000.
+```
+curl -XPOST 'http://localhost:9000/2015-03-31/functions/function/invocations' \
+     -H 'Content-Type: application/json' \
+     -d '{"httpMethod": "GET", "queryStringParameters": null, "body": null}'
+```
+Note: This uses a POST request to the Lambda Runtime Interface Emulator (RIE), and the JSON payload simulates the actual API Gateway request.
 
-- **An API Gateway** with a single endpoint (`GET /info`).
-- **A Lambda function** triggered by the API Gateway.
-- **A database instance or application backend** running in a private subnet. This can be:
-  - A **PostgreSQL RDS instance** 📦
-  - A **self-hosted database** on an EC2 instance 🔗
-  - A **deployed application** such as WordPress hosted on EC2 🎨
-- **The Lambda function must connect** to the database/backend and return basic information about its connection and status.
-- **Logs from the Lambda** should be visible in CloudWatch 📊
-- **Networking must include:** VPC, public/private subnets, and security groups.
-- **The Lambda must be in a private subnet** and use a NAT Gateway in a public subnet for internet access 🌍
+**Expected Output**: A JSON object containing the database version.
 
-> [!IMPORTANT]
-> Ensure that your solution is modular, well-documented, and follows best practices for security and maintainability.
+## AWS Deployment
+First, ensure your AWS credentials are configured and accessible by Terraform
+Then check the following variables in the terraform.tfvars file and assign them values, since they will be needed to perform a succesful deployment:
+```
+sns-email = ""
+my-public-ip = ""
+```
+### 1. Initialize and Validate
+```
+terraform init
+terraform validate
+```
+### 2. Run Pre-Deployment Checks
+```
+tflint
+trivy config .
+```
+### 3 Deployment
+Review the planned changes and apply the configuration.
+```
+terraform plan
+terraform apply
+```
+### 4 Testing
+After deployment, copy the URL of the API Gateway given by the output and paste it into your browser.
 
-## 📌 Requirements
+**Expected Output**: A JSON object detailing information about the RDS.
 
-### ⚙️ Tech Stack
+Once you've tested the function, you can test the alarms by executing the .sql scripts in the "alarm testing" directory. First you'll need to run:
+```
+simulate_load.psql
+```
+Then open 5 to 7 sessions on the database and execute the next script:
+```
+high_cpu_load.sql
+```
+After a while you should get all 3 emails, one for each alert.
 
-> ⚡ **Must Include:**
+## Tool Selection Justification
+The tools used during the challenge were:
+1. **An AWS Free Tier account**: I decided to use an AWS Free Tier account instead of LocalStack mainly because it is what I felt the most comfortable with. I've been working with AWS for a while now and I knew that trying anything new was a recipe for disaster, so I tried to keep it simple by using what I know the most. Using AWS allowed me to plan every step carefully and making mistakes and correcting them was much easier due to the UI.
+2. **Terraform**: Same as AWS, I went with Terraform because I know it the most. I've used CDK in the past but I'm not as comfortable as I am with Terraform. Maybe it is because I have been using it for a while but I feel like the code is much more easy to understand visually.
+3. **Docker and Docker-compose**: I didn't have much experience using Docker and Docker compose aside from a few personal projects that I did in the past so I decided to go with these tools to try and hone my knowledge. I found it super pleasurable since I managed to deploy everything with almost no problems, it felt like after a few years of  working with AWS all the Docker concepts that used to feel hard to understand came very naturally.
+4. **Python**: In the past year I had to deploy a few Lambda functions and I wrote the scripts with Python and boto3. I felt like these were the right tools to create the Lambda needed for the solution.
 
-- **IaC:** Any tool of your choice (**Terraform preferred**, but others are allowed if justified).
-- **AWS Services:** VPC, API Gateway, Lambda, CloudWatch, NAT Gateway, RDS or EC2.
+## Takeaways
+It was a great and very informative experience. I got the chance to do a lot of new things that either weren't necessary in my current and previous jobs or that were already solved (such as all the VPC configs).
+I got to create a pipeline from scratch (and I even tested it with a terraform plan! But I removed it from the repo since I didn't want my iam user credentials to be stored in GitHub Secrets) and I also got to build and deploy two working containers that communicated with eachother, and I learned how to configure pre-commits for my future repositories.
 
-### 📦 Deliverables
-
-> 📥 **Your submission must be a Pull Request that must include:**
-
-- **An IaC module** that deploys the entire architecture.
-- **A `README.md`** with deployment instructions and tool selection justification.
-- **A working API Gateway endpoint** that responds with a JSON payload from the Lambda, including:
-  - Connection status to the database or backend.
-  - Basic metadata about the target system (e.g., DB version, instance type, WordPress version, etc.).
-- **CloudWatch logs** from the Lambda.
-
-> [!TIP]
-> Use the `docs` folder to store any additional documentation or diagrams that help explain your solution.
-> Mention any assumptions or constraints in your `README.md`.
-
-## 🌟 Nice to Have
-
-> 💡 **Bonus Points For:**
-
-- **Auto Scaling & High Availability**: Implementing **Multi-AZ for RDS** or an **Auto Scaling Group for EC2** to improve availability.  
-- **Load Balancer or CloudFront**: Adding an **Application Load Balancer (ALB)** or **CloudFront** for distributing traffic efficiently.  
-- **Backup & Disaster Recovery**: Implementing **automated backups for RDS** or **snapshot strategies**.  
-- **GitHub Actions for validation**: Running **`terraform fmt`, `terraform validate`**, or equivalent for the chosen IaC tool.  
-- **Pre-commit hooks**: Ensuring linting and security checks before committing.  
-- **Monitoring & Logging**: Setting up **AWS CloudWatch Alarms for infrastructure health (e.g., RDS CPU usage, EC2 status)**.  
-- **Docker for local testing**: Using Docker to **simulate infrastructure components** (e.g., a local PostgreSQL instance).
-
-> [!TIP]
-> Looking for inspiration or additional ideas to earn extra points? Check out our [Awesome NaNLABS repository](https://github.com/nanlabs/awesome-nan) for reference projects and best practices! 🚀
-
-## 📥 Submission Guidelines
-
-> 📌 **Follow these steps to submit your solution:**
-
-1. **Fork this repository.**
-2. **Create a feature branch** for your implementation.
-3. **Commit your changes** with meaningful commit messages.
-4. **Open a Pull Request** following the provided template.
-5. **Our team will review** and provide feedback.
-
-## ✅ Evaluation Criteria
-
-> 🔍 **What we'll be looking at:**
-
-- **Correctness and completeness** of the deployed **infrastructure**.  
-- **Use of best practices for networking and security** (VPC, subnets, IAM).  
-- **Scalability & High Availability considerations** (optional. e.g., Multi-AZ, Auto Scaling, Load Balancer).  
-- **Backup & Disaster Recovery strategies** implemented (optional).  
-- **CI/CD automation using GitHub Actions and pre-commit hooks** (optional).  
-- **Documentation clarity**: Clear explanation of infrastructure choices and configurations.
-
-## 🎯 **Good luck and happy coding!** 🚀
+I know that my final submission won't be perfect but overall I am very happy with how this turned out.
