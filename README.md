@@ -47,6 +47,7 @@ Note: This uses a POST request to the Lambda Runtime Interface Emulator (RIE), a
 
 ## AWS Deployment
 First, ensure your AWS credentials are configured and accessible by Terraform
+
 Then check the following variables in the terraform.tfvars file and assign them values, since they will be needed to perform a succesful deployment:
 ```
 sns-email = ""
