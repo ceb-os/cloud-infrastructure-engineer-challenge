@@ -15,7 +15,14 @@ terraform {
 
 provider "aws" {
   region  = var.region
-  #profile = "default"
+  default_tags {
+    tags = {
+      environment = "dev"
+      owner       = "seba"
+      project     = "nanlabs-challenge"
+      billing     = "aws-freetier"
+    }
+  }
 }
 
 provider "postgresql" {
