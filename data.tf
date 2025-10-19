@@ -1,6 +1,6 @@
-# data "aws_kms_key" "kms-aws-rds" {
-#   key_id = "ed41829f-41c4-4885-98d4-d96dde08a7e2"
-# }
+data "aws_availability_zones" "available" {
+  state = "available"
+}
 
 data "aws_kms_alias" "rds_default_key" {
   name = "alias/aws/rds"
