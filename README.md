@@ -38,8 +38,9 @@ The tools used during the challenge were:
 Before deploying to AWS, you can test the Lambda and Database integration locally using Docker Compose.
 ### 1. Build and Run Services
 First make sure that Docker is running.
-From the project root directory, access the docker folder and run the following command to build the Lambda image, start the Lambda container, and start the PostgreSQL container in the background:
+From the project root directory run the following commands to access the docker directory and build the Lambda image, start the Lambda container, and start the PostgreSQL container in the background:
 ```
+cd docker
 docker-compose up --build -d
 ```
 ### 2. Test the Local Endpoint
