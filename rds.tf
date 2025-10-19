@@ -18,7 +18,7 @@ resource "aws_db_instance" "nanlabs-rds" {
   backup_retention_period             = 7
   backup_window                       = "22:00-02:00"
   storage_encrypted                   = true
-  kms_key_id                          = data.aws_kms_key.kms-aws-rds.arn
+  kms_key_id                          = data.aws_kms_alias.rds_default_key.target_key_arn
   iam_database_authentication_enabled = true
   vpc_security_group_ids              = [aws_security_group.rds-sg.id]
   database_insights_mode              = "standard"
