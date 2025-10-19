@@ -15,7 +15,7 @@ This was all done on an AWS Free Tier Subscription account.
 
 ## Prerequisites
 To deploy the solution, the following packages must be installed:
-**Python3.x**, **pip**, **node.js**, **git**, **pre-commit**, **tflint**, **tfsec (trivy)**, **terraform** and **Docker**.
+**Python3.13**, **pip**, **node.js**, **git**, **pre-commit**, **tflint**, **trivy (tfsec)**, **terraform** and **Docker**.
 
 ## Decisions
 During the challenge there were many decisions that I had to take and I'd like to detail my train of thought in this block.
