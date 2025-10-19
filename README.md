@@ -15,7 +15,36 @@ This was all done on an AWS Free Tier Subscription account.
 
 ## Prerequisites
 To deploy the solution, the following packages must be installed:
-**Python3.13**, **pip**, **node.js**, **git**, **pre-commit**, **tflint**, **trivy (tfsec)**, **terraform** and **Docker**.
+**Python3.13**, **pip**, **git**, **pre-commit**, **tflint**, **trivy (tfsec)**, **terraform** and **Docker**.
+
+For all the terraform related binaries I used choco since I am working on a Windows machine. To install choco do the following:
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+```
+
+Terraform, trivy and tflint:
+```powershell
+choco install terraform
+chocolatey install trivy
+choco install tflint
+```
+
+For Git and Python I used my web browser: 
+
+https://git-scm.com/downloads
+
+https://www.python.org/downloads/
+
+And then I followed the next instructions to install pip: https://pip.pypa.io/en/stable/installation/
+
+Then I installed pre-commit using pip:
+```
+pip install pre-commit
+```
+
+And lastly, for Docker, I downloaded Docker Desktop: https://docs.docker.com/desktop/setup/install/windows-install/
+
+
 
 ## Decisions
 During the challenge there were many decisions that I had to take and I'd like to detail my train of thought in this block.
@@ -26,6 +55,10 @@ I started with the creation of the VPC and the subnets. One would be a private s
 This was a great learning point for me since I never had to deploy a VPC config from scratch. All the places I've worked at had already solved that issue so even though I understood the theory of it, I never had the chance to do it. Creating the Internet Gateway and the NAT Gateway for the public subnet, and then associating the NAT route table to the private subnet was super informative.
 ### Backend
 It was time to create the backend. The first thing that came to mind was RDS. I felt that it was a much simpler approach for the specific requirement since it didn’t need as much configuration as an EC2 with an installed database or a deployed application (which would make the task much more complex since the database/application installation and configuration should be automated). The type of instance that I felt would be best was an Aurora Serverless, since it checks the auto-scaling requirement. Sadly, due to my account being Free Tier I couldn't deploy one. Also the deployment wasn't MultiAZ since it isn't supported by Free Tier (for the record, if I would have been able to, I would have created a MultiAZ deployment with a Subnet Group that used 2 Private Subnets and an Aurora Serverless RDS). For a brief moment I also explored the possibility of an EC2 with an ASG and an AWS AMI that came with the database installed but it was discarded since it felt like too much of a hassle compared to the RDS solution, which is also something that I am much more familiarized with since I’ve done this type of integrations with Lambda before. What I had never done before was authenticating to an RDS database using IAM. I decided to authenticate this way since I felt it was way cleaner than using credentials, since I would have to also manage the credentials with Secret Manager or Parameter Store. After reviewing the code, you'll probably notice that the RDS is publicly accessible. I know this is neither clean nor secure but it was the way I managed to set up the postgres provider to automate the creation of the role and then grant permissions to the role inside the database since terraform is creating a connection from my host to the RDS. A way to fix this would be having an EC2 in the same VPC with all the dependencies installed do the whole deployment.
+### Terraform State management
+For the sake of simplicity I decided to maintain the terraform state locally. If this were to be a productive environment I would take a different approach by having a **remote backend state** using S3 and DynamoDB.
+1. **S3 Bucket**: The Terraform state files (.tfstate) would be stored in a private bucket. This way I can have a persisten and versioned storage for the state which would make it super practical and safe for team collaboration.
+2. **DynamoDB**: Then a DynamoDB would be used to implement state locking. This way, when working with a team, simoultaneous modification of the infrastructure state can be avoided and data corruption, prevented.
 
 ## Tool Selection Justification
 The tools used during the challenge were:
@@ -59,13 +92,16 @@ First, make sure your AWS credentials are configured and accessible by Terraform
 
 Then check the following variables in the terraform.tfvars file and assign values to them, since they will be needed to perform a succesful deployment:
 ```
+# the sns-email where you want to receive notifications
 sns-email = ""
+# you public ip "x.x.x.x/32"
 my-public-ip = ""
 ```
 ### 1. Initialize and Validate
 ```
 terraform init
 terraform validate
+tflint --init
 ```
 ### 2. Run Pre-Deployment Checks
 ```
@@ -92,6 +128,17 @@ Then open 5 to 7 sessions on the database and execute the next script:
 high_cpu_load.sql
 ```
 After a while you should get all 3 emails, one for each alert.
+
+### 5 Cleanup
+To clean everything up the following commands must be performed:
+```
+terraform state rm postgresql_role.nanlabs_user
+terraform state rm postgresql_grant_role.grant_rds_iam
+```
+If the postgresql provider resources aren't removed from the state, when the destruction command is executed, terraform will try to connect to the rds database. Once this is done we can run:
+```
+terraform destroy
+```
 
 ## Takeaways
 It was a great and very informative experience. I got the chance to do a lot of new things that either weren't necessary in my current and previous jobs or that were already solved (such as all the VPC configs).
