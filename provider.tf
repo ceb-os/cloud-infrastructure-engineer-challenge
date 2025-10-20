@@ -14,6 +14,7 @@ terraform {
 
 
 provider "aws" {
+  # va a usar siempre la default configurada en la cli
   region  = var.region
   default_tags {
     tags = {

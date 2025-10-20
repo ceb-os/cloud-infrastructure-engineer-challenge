@@ -25,6 +25,7 @@ resource "aws_lambda_function" "lambda" {
       DB_HOST = aws_db_instance.nanlabs-rds.address
       DB_NAME = aws_db_instance.nanlabs-rds.db_name
       DB_USER = postgresql_role.nanlabs_user.name
+      REGION_NAME = var.region
     }
   }
 

@@ -8,7 +8,7 @@ DB_HOST = os.environ['DB_HOST'] # RDS Endpoint
 DB_USER = os.environ['DB_USER'] # The DB user enabled for IAM Auth
 DB_NAME = os.environ['DB_NAME']
 DB_PORT = 5432
-REGION_NAME = "us-east-1" # e.g., 'us-east-1', adjust as necessary
+REGION_NAME = os.environ['REGION_NAME'] 
 
 # 1. Generate the Authentication Token (Temporary Password)
 def generate_db_auth_token(db_host, db_port, db_user, region_name):

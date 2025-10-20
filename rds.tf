@@ -10,7 +10,7 @@ resource "aws_db_instance" "nanlabs-rds" {
   username          = "postgres"
   # az pública para hacerla publicly accesible y correr el script del postgresql provider
   # algo que podría hacer para evitar esto es tener una ec2 en la misma vpc que la rds y levantar todo desde ahí
-  availability_zone          = "us-east-1b"
+  availability_zone          = aws_subnet.public.availability_zone
   password                   = random_string.rds-password.result
   skip_final_snapshot        = true
   auto_minor_version_upgrade = true
