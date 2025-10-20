@@ -121,7 +121,7 @@ After deployment, copy the URL of the API Gateway given by the output and paste 
 
 You should now see a JSON object detailing information about the RDS.
 
-Once you've tested the function, you can test the alarms by connecting to the database and executing the .sql scripts in the "alarm testing" directory. First you'll need to run:
+Once you've tested the function, you can test the alarms by connecting to the database and executing the .sql scripts in the "alarm testing" directory (remember to accept the subscription created by SNS that was sent to the configured sns email). First you'll need to run:
 ```
 simulate_load.psql
 ```
