@@ -39,6 +39,6 @@ resource "random_string" "rds-password" {
   special = false
 }
 
-output "random_string" {
+output "rds-random-password" {
   value = random_string.rds-password.result
 }
