@@ -139,6 +139,7 @@ If the postgresql provider resources aren't removed from the state, when the des
 ```
 terraform destroy
 ```
+Note: There is a weird dependency with the lambda and the private subnet which I think is related to how much time it takes for the network interface of the lambda to be dettached. The consequence of this is the destroy operation taking a while to complete (around 20min).
 
 ## Takeaways
 It was a great and very informative experience. I got the chance to do a lot of new things that either weren't necessary in my current and previous jobs or that were already solved (such as all the VPC configs).
