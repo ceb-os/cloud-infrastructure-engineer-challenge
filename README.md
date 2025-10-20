@@ -123,16 +123,21 @@ You should now see a JSON object detailing information about the RDS.
 
 Once you've tested the function, you can test the alarms by connecting to the database and executing the .sql scripts in the "alarm testing" directory (remember to accept the subscription created by SNS that was sent to the configured sns email). First you'll need to connect to the database. For this I used pgAdmin4. The user is "postgres" and the password is printed as an output on your terminal once the infrastructure is deployed. It will be shown like this:
 ```
-random_string = "ABCDEFG123456"
+rds-random-password = "ABCDEFG123456"
 ```
 This random string is created by the resource called "random_string" in the rds.tf file.
 
-Once you've connected to the database, you can run the next script:
-
+To connect to the database using pgAdmin4 and run the scripts do the following:
+1. Right click on "Servers" on the top left side of the UI, Register -> Server.
+2. In the "General" tab, add your desired session name in the "Name" field.
+3. Then access the "Connection" tab. There you will add the RDS endpoint as the "Host name/address". Leave the username as "postgres" and paste the password that was printed on your terminal as a terraform output. Once that is done click on "Save" and you should be connected to the RDS. 
+4. Select the target database on the browser tree (left panel) where you want to execute the script (in this case, the database is called "postgres".
+5. Open the Query Tool by right-clicking on the selected database, navigating to Tools, and then clicking on Query Tool.
+6. In the Query Tool window, click the Open File button (folder icon) in the toolbar. Browse to and select your .sql file called:
 ```
 simulate_load.psql
 ```
-Then open 5 to 7 sessions on the database and execute the next script:
+Then open 5 to 7 sessions on the database and do the same with the next script:
 ```
 high_cpu_load.sql
 ```
