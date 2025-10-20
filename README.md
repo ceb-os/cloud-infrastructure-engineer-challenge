@@ -57,7 +57,7 @@ This was a great learning point for me since I never had to deploy a VPC config 
 It was time to create the backend. The first thing that came to mind was RDS. I felt that it was a much simpler approach for the specific requirement since it didn’t need as much configuration as an EC2 with an installed database or a deployed application (which would make the task much more complex since the database/application installation and configuration should be automated). The type of instance that I felt would be best was an Aurora Serverless, since it checks the auto-scaling requirement. Sadly, due to my account being Free Tier I couldn't deploy one. Also the deployment wasn't MultiAZ since it isn't supported by Free Tier (for the record, if I would have been able to, I would have created a MultiAZ deployment with a Subnet Group that used 2 Private Subnets and an Aurora Serverless RDS). For a brief moment I also explored the possibility of an EC2 with an ASG and an AWS AMI that came with the database installed but it was discarded since it felt like too much of a hassle compared to the RDS solution, which is also something that I am much more familiarized with since I’ve done this type of integrations with Lambda before. What I had never done before was authenticating to an RDS database using IAM. I decided to authenticate this way since I felt it was way cleaner than using credentials, since I would have to also manage the credentials with Secret Manager or Parameter Store. After reviewing the code, you'll probably notice that the RDS is publicly accessible. I know this is neither clean nor secure but it was the way I managed to set up the postgres provider to automate the creation of the role and then grant permissions to the role inside the database since terraform is creating a connection from my host to the RDS. A way to fix this would be having an EC2 in the same VPC with all the dependencies installed do the whole deployment.
 ### Terraform State management
 For the sake of simplicity I decided to maintain the terraform state locally. If this were to be a productive environment I would take a different approach by having a **remote backend state** using S3 and DynamoDB.
-1. **S3 Bucket**: The Terraform state files (.tfstate) would be stored in a private bucket. This way I can have a persisten and versioned storage for the state which would make it super practical and safe for team collaboration.
+1. **S3 Bucket**: The Terraform state files (.tfstate) would be stored in a private bucket. This way I can have a persistent and versioned storage for the state which would make it super practical and safe for team collaboration.
 2. **DynamoDB**: Then a DynamoDB would be used to implement state locking. This way, when working with a team, simoultaneous modification of the infrastructure state can be avoided and data corruption, prevented.
 
 ## Tool Selection Justification
@@ -130,7 +130,7 @@ high_cpu_load.sql
 After a while you should get all 3 emails, one for each alert.
 
 ### 5 Cleanup
-To clean everything up the following commands must be performed:
+To clean everything up the following commands must be executed:
 ```
 terraform state rm postgresql_role.nanlabs_user
 terraform state rm postgresql_grant_role.grant_rds_iam
