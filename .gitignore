@@ -2,3 +2,4 @@
 *.tfstate
 *.tfstate.*
 .terraform*
+/function_code/lambda_function.zip
