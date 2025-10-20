@@ -121,7 +121,7 @@ After deployment, copy the URL of the API Gateway given by the output and paste 
 
 You should now see a JSON object detailing information about the RDS.
 
-Once you've tested the function, you can test the alarms by connecting to the database and executing the .sql scripts in the "alarm testing" directory (remember to accept the subscription created by SNS that was sent to the configured sns email). First you'll need connect to the database. For this I used pgAdmin4 and the user is "postgres". The password is printed as an output on your terminal once the infrastructure is deployed. It will show like this:
+Once you've tested the function, you can test the alarms by connecting to the database and executing the .sql scripts in the "alarm testing" directory (remember to accept the subscription created by SNS that was sent to the configured sns email). First you'll need connect to the database. For this I used pgAdmin4. The user is "postgres" and the password is printed as an output on your terminal once the infrastructure is deployed. It will be shown like this:
 ```
 random_string = "ABCDEFG123456"
 ```
