@@ -96,6 +96,8 @@ Then check the following variables in the terraform.tfvars file and assign value
 sns-email = ""
 # you public ip "x.x.x.x/32"
 my-public-ip = ""
+# your desired deployment region (otherwise it will default to us-east-1 as defined in the variables.tf)
+region = ""
 ```
 ### 1. Initialize and Validate
 ```
